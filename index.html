@@ -247,8 +247,23 @@
       if(saved.avatar)document.getElementById('avatarPreview').src=saved.avatar;
     });
   <script>
-  <script src="script.js"></script> 
+    <!-- ===== HALAMAN BERANDA INTERAKTIF ===== -->
+  <div id="draggableBox" class="draggable">
+   <span>🪐 Geser Aku!</span>
+  </div>
+
+    <!-- ===== MENU KIRI BAWAH ===== -->
+  <div class="bottomMenu">
+    <button onclick="toggleSearch()">🔍 Cari</button>
+  </div>
+
+     <!-- ===== PENCARIAN GOOGLE ===== -->
+  <div id="searchPanel" class="searchPanel hidden">
+     <input type="text" id="googleSearch" placeholder="Cari di Google..." onkeypress="handleKey(event)"/>
+     <button onclick="searchGoogle()">Cari</button>
+</div>
 </body>
 </html>
+
 
 
