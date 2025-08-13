@@ -1,311 +1,68 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cosmos Login</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      min-height: 100vh;
-      overflow-x: hidden;
-      transition: background 0.5s ease;
-      position: relative;
-    }
-    
-    body.dark {
-      background: linear-gradient(135deg, #0c0c2b, #000);
-      color: #fff;
-    }
-    
-    body.light {
-      background: linear-gradient(135deg, #87CEEB, #E0F7FA);
-      color: #333;
-    }
-    
-    .theme-toggle {
-      position: absolute;
-      top: 24px;
-      right: 24px;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.1);
-      border: none;
-      color: white;
-      font-size: 24px;
-      cursor: pointer;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(5px);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-      transition: all 0.3s ease;
-    }
-    
-    .theme-toggle:hover {
-      transform: scale(1.1);
-      background: rgba(255, 255, 255, 0.2);
-    }
-    
-    .container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
-      position: relative;
-      z-index: 10;
-    }
-    
-    .form-card {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(16px);
-      border-radius: 24px;
-      padding: 40px;
-      width: 100%;
-      max-width: 450px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      transition: all 0.3s ease;
-    }
-    
-    body.light .form-card {
-      background: rgba(255, 255, 255, 0.85);
-      border: 1px solid rgba(0, 0, 0, 0.1);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    }
-    
-    h1 {
-      text-align: center;
-      margin-bottom: 30px;
-      font-size: 2.2rem;
-      background: linear-gradient(90deg, #D4A7FF, #B583F3);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      font-weight: 700;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    body.light h1 {
-      background: linear-gradient(90deg, #7D36E2, #B583F3);
-      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .input-group {
-      margin-bottom: 25px;
-    }
-    
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 600;
-      font-size: 1.05rem;
-    }
-    
-    input {
-      width: 100%;
-      padding: 16px;
-      border: none;
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.2);
-      color: inherit;
-      font-size: 16px;
-      transition: all 0.3s;
-    }
-    
-    body.light input {
-      background: #f5f7fa;
-      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.05);
-    }
-    
-    input:focus {
-      outline: none;
-      background: rgba(255, 255, 255, 0.3);
-      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
-    }
-    
-    body.light input:focus {
-      background: white;
-      box-shadow: 0 0 0 2px #7D36E2;
-    }
-    
-    button {
-      width: 100%;
-      padding: 16px;
-      border: none;
-      border-radius: 14px;
-      background: linear-gradient(90deg, #8E2DE2, #4A00E0);
-      color: white;
-      font-size: 18px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      letter-spacing: 0.5px;
-    }
-    
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 7px 20px rgba(74, 0, 224, 0.4);
-    }
-    
-    .star {
-      position: absolute;
-      background: white;
-      border-radius: 50%;
-      opacity: 0.7;
-      animation: moveStar 120s linear infinite;
-    }
-    
-    @keyframes moveStar {
-      0% { transform: translateX(0); opacity: 0.7; }
-      100% { transform: translateX(-100vw); opacity: 0.2; }
-    }
-    
-    .cloud {
-      position: absolute;
-      background: rgba(255, 255, 255, 0.85);
-      border-radius: 50px;
-      opacity: 0.85;
-      filter: blur(1px);
-      animation: moveCloud 80s linear infinite;
-    }
-    
-    @keyframes moveCloud {
-      0% { transform: translateX(100vw); }
-      100% { transform: translateX(-100%); }
-    }
-    
-    .bird {
-      position: absolute;
-      width: 24px;
-      height: 12px;
-      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 12"><path d="M2 6 L12 2 L22 6 L12 10 Z" fill="#7D36E2"/></svg>') no-repeat;
-      background-size: contain;
-      animation: flyBird 25s linear infinite;
-    }
-    
-    @keyframes flyBird {
-      0% { transform: translate(0, 0); }
-      100% { transform: translate(100vw, -50px) rotate(360deg); }
-    }
-  </style>
-</head>
-<body class="dark">
-  <button class="theme-toggle" id="themeToggle">🌙</button>
+import React, { useState, useEffect, useRef } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Html, OrbitControls, Stars, Text } from '@react-three/drei';
 
-  <div class="container">
-    <div class="form-card">
-      <h1>Cosmos Login</h1>
-      <form id="loginForm" action="profile.html">
-        <div class="input-group">
-          <label for="email">Email Address</label>
-          <input type="email" id="email" name="email" placeholder="your@email.com" required>
-        </div>
-        <div class="input-group">
-          <label for="profile">Profile Name</label>
-          <input type="text" id="profile" name="profile" placeholder="Your name" required>
-        </div>
-        <button type="submit">Enter Cosmos</button>
-      </form>
-    </div>
-  </div>
+function Planet({ position, size, color, rotationSpeed }) {
+  const meshRef = useRef();
+  
+  useFrame(() => {
+    if (meshRef.current) {
+      meshRef.current.rotation.y += rotationSpeed;
+    }
+  });
 
-  <script>
-    const body = document.body;
-    const themeToggle = document.getElementById('themeToggle');
-    const form = document.getElementById('loginForm');
+  return (
+    <mesh ref={meshRef} position={position}>
+      <sphereGeometry args={[size, 32, 32]} />
+      <meshStandardMaterial color={color} />
+    </mesh>
+  );
+}
 
-    // Initialize with dark theme
-    themeToggle.textContent = '🌙';
-    
-    // Toggle theme
-    themeToggle.addEventListener('click', () => {
-      const isDark = body.classList.contains('dark');
+function FloatingText({ position, text, color }) {
+  return (
+    <group position={position}>
+      <Text fontSize={1.5} color={color} anchorX="center" anchorY="center">
+        {text}
+      </Text>
+    </group>
+  );
+}
+
+function App() {
+  const [darkMode, setDarkMode] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      setMousePosition({
+        x: (e.clientX / window.innerWidth) * 2 - 1,
+        y: -(e.clientY / window.innerHeight) * 2 + 1
+      });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  return (
+    <div className={`app ${darkMode ? 'dark' : 'light'}`}>
+      <button onClick={() => setDarkMode(!darkMode)}>
+        {darkMode ? '🌙' : '☀️'}
+      </button>
       
-      body.classList.toggle('dark', !isDark);
-      body.classList.toggle('light', isDark);
-      
-      themeToggle.textContent = isDark ? '☀️' : '🌙';
-      
-      // Clear existing elements
-      document.querySelectorAll('.star, .cloud, .bird').forEach(el => el.remove());
-      
-      // Create new elements based on theme
-      if (isDark) {
-        createStars();
-      } else {
-        createNatureElements();
-      }
-    });
-
-    // Handle form submission
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      window.location.href = 'profile.html';
-    });
-
-    // Generate stars for dark mode
-    function createStars() {
-      const starCount = 120;
-      for (let i = 0; i < starCount; i++) {
-        const star = document.createElement('div');
-        star.classList.add('star');
+      <Canvas shadows dpr={[window.devicePixelRatio]}>
+        <OrbitControls enableZoom={false} />
         
-        // Random positions
-        star.style.top = Math.random() * 100 + 'vh';
-        star.style.left = Math.random() * 100 + 'vw';
+        {/* Background */}
+        <Stars count={800} factor={4} depth={2000} color={darkMode ? '#fff' : '#7D36E2'} />
         
-        // Random size
-        const size = Math.random() * 2 + 0.5;
-        star.style.width = size + 'px';
-        star.style.height = size + 'px';
-        
-        document.body.appendChild(star);
-      }
-    }
-
-    // Generate clouds and birds for light mode
-    function createNatureElements() {
-      // Clouds
-      const cloudCount = 7;
-      for (let i = 0; i < cloudCount; i++) {
-        const cloud = document.createElement('div');
-        cloud.classList.add('cloud');
-        
-        // Random positions and sizes
-        cloud.style.top = (Math.random() * 25 + 10) + '%';
-        cloud.style.left = (Math.random() * 100) + 'vw';
-        cloud.style.width = (Math.random() * 150 + 80) + 'px';
-        cloud.style.height = (Math.random() * 50 + 30) + 'px';
-        
-        document.body.appendChild(cloud);
-      }
-
-      // Birds
-      const birdCount = 10;
-      for (let i = 0; i < birdCount; i++) {
-        const bird = document.createElement('div');
-        bird.classList.add('bird');
-        
-        // Random positions
-        bird.style.top = (Math.random() * 30 + 15) + '%';
-        bird.style.left = (Math.random() * 100) + 'vw';
-        
-        document.body.appendChild(bird);
-      }
-    }
-
-    // Initialize elements based on default theme
-    createStars();
-  </script>
-</body>
-</html>
+        {/* Planets */}
+        <Planet 
+          position={[0, 0, 0]} 
+          size={1.5} 
+          color="#8E2DE2" 
+          rotationSpeed={0.005} 
+        />
+        <Planet 
+          position={[5, 0, 0]} 
