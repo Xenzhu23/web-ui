@@ -1,244 +1,311 @@
-```jsx
-import React, { useState, useEffect, useRef } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, Stars, Sphere, Text } from '@react-three/drei';
-import * as THREE from 'three';
-
-// 3D Planet Component
-function Planet({ position, size, color, rotationSpeed }) {
-  const meshRef = useRef();
-  
-  useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y += rotationSpeed;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cosmos Login</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-  });
-
-  return (
-    <Sphere ref={meshRef} position={position} args={[size, 32, 32]}>
-      <meshStandardMaterial 
-        color={color} 
-        roughness={0.3} 
-        metalness={0.1}
-      />
-    </Sphere>
-  );
-}
-
-// 3D Floating Object Component
-function FloatingObject({ position, size, color, rotationSpeed }) {
-  const meshRef = useRef();
-  
-  useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.x += rotationSpeed * 0.5;
-      meshRef.current.rotation.y += rotationSpeed;
+    
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background 0.5s ease;
+      position: relative;
     }
-  });
+    
+    body.dark {
+      background: linear-gradient(135deg, #0c0c2b, #000);
+      color: #fff;
+    }
+    
+    body.light {
+      background: linear-gradient(135deg, #87CEEB, #E0F7FA);
+      color: #333;
+    }
+    
+    .theme-toggle {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+    }
+    
+    .theme-toggle:hover {
+      transform: scale(1.1);
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      position: relative;
+      z-index: 10;
+    }
+    
+    .form-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(16px);
+      border-radius: 24px;
+      padding: 40px;
+      width: 100%;
+      max-width: 450px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+    
+    body.light .form-card {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 2.2rem;
+      background: linear-gradient(90deg, #D4A7FF, #B583F3);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    body.light h1 {
+      background: linear-gradient(90deg, #7D36E2, #B583F3);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .input-group {
+      margin-bottom: 25px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+    
+    input {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.2);
+      color: inherit;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+    
+    body.light input {
+      background: #f5f7fa;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+    
+    input:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.3);
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+    }
+    
+    body.light input:focus {
+      background: white;
+      box-shadow: 0 0 0 2px #7D36E2;
+    }
+    
+    button {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(90deg, #8E2DE2, #4A00E0);
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      letter-spacing: 0.5px;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 20px rgba(74, 0, 224, 0.4);
+    }
+    
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      opacity: 0.7;
+      animation: moveStar 120s linear infinite;
+    }
+    
+    @keyframes moveStar {
+      0% { transform: translateX(0); opacity: 0.7; }
+      100% { transform: translateX(-100vw); opacity: 0.2; }
+    }
+    
+    .cloud {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 50px;
+      opacity: 0.85;
+      filter: blur(1px);
+      animation: moveCloud 80s linear infinite;
+    }
+    
+    @keyframes moveCloud {
+      0% { transform: translateX(100vw); }
+      100% { transform: translateX(-100%); }
+    }
+    
+    .bird {
+      position: absolute;
+      width: 24px;
+      height: 12px;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 12"><path d="M2 6 L12 2 L22 6 L12 10 Z" fill="#7D36E2"/></svg>') no-repeat;
+      background-size: contain;
+      animation: flyBird 25s linear infinite;
+    }
+    
+    @keyframes flyBird {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(100vw, -50px) rotate(360deg); }
+    }
+  </style>
+</head>
+<body class="dark">
+  <button class="theme-toggle" id="themeToggle">🌙</button>
 
-  return (
-    <Sphere ref={meshRef} position={position} args={[size, 16, 16]}>
-      <meshStandardMaterial 
-        color={color} 
-        emissive={color}
-        emissiveIntensity={0.2}
-        roughness={0.1}
-        metalness={0.8}
-      />
-    </Sphere>
-  );
-}
-
-// 3D Text Component
-function FloatingText({ position, text, color }) {
-  return (
-    <Text
-      position={position}
-      fontSize={1}
-      color={color}
-      anchorX="center"
-      anchorY="middle"
-    >
-      {text}
-    </Text>
-  );
-}
-
-// Space Scene Component
-function SpaceScene() {
-  return (
-    <>
-      <ambientLight intensity={0.2} />
-      <pointLight position={[10, 10, 10]} intensity={1} />
-      <pointLight position={[-10, -10, -10]} intensity={0.5} color="#4f46e5" />
-      
-      <Stars
-        radius={100}
-        depth={50}
-        count={5000}
-        factor={4}
-        saturation={0}
-        fade
-        speed={1}
-      />
-      
-      <Planet position={[-5, 0, 0]} size={2} color="#ff6b6b" rotationSpeed={0.01} />
-      <Planet position={[5, 2, -2]} size={1.5} color="#4ecdc4" rotationSpeed={0.02} />
-      <Planet position={[0, -3, 3]} size={2.5} color="#45b7d1" rotationSpeed={0.005} />
-      <Planet position={[3, 3, -5]} size={1.2} color="#96ceb4" rotationSpeed={0.015} />
-      
-      <FloatingObject position={[-2, 2, 2]} size={0.3} color="#ffd93d" rotationSpeed={0.03} />
-      <FloatingObject position={[2, -2, -2]} size={0.4} color="#ff6b6b" rotationSpeed={0.02} />
-      <FloatingObject position={[-3, -1, 1]} size={0.2} color="#4ecdc4" rotationSpeed={0.04} />
-      
-      <FloatingText position={[0, 4, 0]} text="WELCOME" color="#ffffff" />
-      <FloatingText position={[0, -4, 0]} text="SPACE EXPLORER" color="#a78bfa" />
-      
-      <OrbitControls 
-        enableZoom={true}
-        enablePan={false}
-        enableRotate={true}
-        autoRotate={true}
-        autoRotateSpeed={0.5}
-      />
-    </>
-  );
-}
-
-const App = () => {
-  const [darkMode, setDarkMode] = useState(false);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth) * 2 - 1,
-        y: -(e.clientY / window.innerHeight) * 2 + 1
-      });
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
-  const toggleTheme = () => {
-    setDarkMode(!darkMode);
-  };
-
-  return (
-    <div className={`min-h-screen w-full transition-all duration-500 ${
-      darkMode ? 'bg-gray-900 text-white' : 'bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white'
-    } relative overflow-hidden`}>
-      {/* Navigation */}
-      <nav className={`flex items-center justify-between p-6 transition-all duration-500 ${
-        darkMode ? 'bg-gray-800/50' : 'bg-black/20 backdrop-blur-sm'
-      }`}>
-        <motion.div 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"
-        >
-          Beranda
-        </motion.div>
-        <div className="flex items-center space-x-4">
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={toggleTheme}
-            className={`p-3 rounded-full transition-all duration-300 shadow-lg ${
-              darkMode ? 'bg-yellow-400 text-gray-900' : 'bg-gray-800 text-yellow-400'
-            }`}
-          >
-            {darkMode ? '☀️' : '🌙'}
-          </motion.button>
-          <motion.div 
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center shadow-lg"
-          >
-            <span className="text-lg font-bold">U</span>
-          </motion.div>
+  <div class="container">
+    <div class="form-card">
+      <h1>Cosmos Login</h1>
+      <form id="loginForm" action="profile.html">
+        <div class="input-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" placeholder="your@email.com" required>
         </div>
-      </nav>
-
-      {/* Main Content */}
-      <div className="flex flex-col items-center justify-center min-h-screen px-6 relative z-10">
-        <motion.h1
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.5 }}
-          className="text-6xl md:text-8xl font-bold text-center mb-8"
-        >
-          <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-            Welcome
-          </span>
-        </motion.h1>
-        
-        <motion.p
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 1 }}
-          className="text-xl md:text-2xl text-center max-w-2xl px-4 mb-12"
-        >
-          Selamat datang di dunia luar angkasa yang tak terbatas
-        </motion.p>
-      </div>
-
-      {/* 3D Space Scene */}
-      <div className="absolute inset-0">
-        <Canvas
-          camera={{ position: [0, 0, 15], fov: 75 }}
-          className="w-full h-full"
-        >
-          <SpaceScene />
-        </Canvas>
-      </div>
-
-      {/* Interactive Cursor Effect */}
-      <div 
-        className="fixed w-8 h-8 rounded-full border-2 border-white/50 pointer-events-none z-50 mix-blend-difference transition-all duration-100"
-        style={{
-          left: `calc(50% + ${mousePosition.x * 100}px)`,
-          top: `calc(50% + ${mousePosition.y * 100}px)`,
-          transform: 'translate(-50%, -50%)'
-        }}
-      >
-        <div className="w-full h-full rounded-full bg-white/20 animate-pulse"></div>
-      </div>
-
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {Array.from({ length: 20 }).map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-2 h-2 bg-white rounded-full opacity-30"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [0, -20, 0],
-              opacity: [0.3, 0.8, 0.3],
-              scale: [1, 1.5, 1]
-            }}
-            transition={{
-              duration: 3 + Math.random() * 2,
-              repeat: Infinity,
-              delay: Math.random() * 2
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Gradient Overlay */}
-      <div className={`absolute inset-0 transition-opacity duration-500 ${
-        darkMode ? 'opacity-30' : 'opacity-20'
-      }`}>
-        <div className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-black/20"></div>
-      </div>
+        <div class="input-group">
+          <label for="profile">Profile Name</label>
+          <input type="text" id="profile" name="profile" placeholder="Your name" required>
+        </div>
+        <button type="submit">Enter Cosmos</button>
+      </form>
     </div>
-  );
-};
+  </div>
 
-export default App;
-```
+  <script>
+    const body = document.body;
+    const themeToggle = document.getElementById('themeToggle');
+    const form = document.getElementById('loginForm');
+
+    // Initialize with dark theme
+    themeToggle.textContent = '🌙';
+    
+    // Toggle theme
+    themeToggle.addEventListener('click', () => {
+      const isDark = body.classList.contains('dark');
+      
+      body.classList.toggle('dark', !isDark);
+      body.classList.toggle('light', isDark);
+      
+      themeToggle.textContent = isDark ? '☀️' : '🌙';
+      
+      // Clear existing elements
+      document.querySelectorAll('.star, .cloud, .bird').forEach(el => el.remove());
+      
+      // Create new elements based on theme
+      if (isDark) {
+        createStars();
+      } else {
+        createNatureElements();
+      }
+    });
+
+    // Handle form submission
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      window.location.href = 'profile.html';
+    });
+
+    // Generate stars for dark mode
+    function createStars() {
+      const starCount = 120;
+      for (let i = 0; i < starCount; i++) {
+        const star = document.createElement('div');
+        star.classList.add('star');
+        
+        // Random positions
+        star.style.top = Math.random() * 100 + 'vh';
+        star.style.left = Math.random() * 100 + 'vw';
+        
+        // Random size
+        const size = Math.random() * 2 + 0.5;
+        star.style.width = size + 'px';
+        star.style.height = size + 'px';
+        
+        document.body.appendChild(star);
+      }
+    }
+
+    // Generate clouds and birds for light mode
+    function createNatureElements() {
+      // Clouds
+      const cloudCount = 7;
+      for (let i = 0; i < cloudCount; i++) {
+        const cloud = document.createElement('div');
+        cloud.classList.add('cloud');
+        
+        // Random positions and sizes
+        cloud.style.top = (Math.random() * 25 + 10) + '%';
+        cloud.style.left = (Math.random() * 100) + 'vw';
+        cloud.style.width = (Math.random() * 150 + 80) + 'px';
+        cloud.style.height = (Math.random() * 50 + 30) + 'px';
+        
+        document.body.appendChild(cloud);
+      }
+
+      // Birds
+      const birdCount = 10;
+      for (let i = 0; i < birdCount; i++) {
+        const bird = document.createElement('div');
+        bird.classList.add('bird');
+        
+        // Random positions
+        bird.style.top = (Math.random() * 30 + 15) + '%';
+        bird.style.left = (Math.random() * 100) + 'vw';
+        
+        document.body.appendChild(bird);
+      }
+    }
+
+    // Initialize elements based on default theme
+    createStars();
+  </script>
+</body>
+</html>
