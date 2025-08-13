@@ -159,13 +159,13 @@
       position: absolute;
       background: white;
       border-radius: 50%;
-      opacity: 0.6;
-      animation: twinkle cubic-bezier(0.5, 0, 0.5, 1) 4s infinite;
+      opacity: 0.8;
+      animation: moveStar 120s linear infinite;
     }
     
-    @keyframes twinkle {
-      0%, 100% { opacity: 0.2; transform: scale(1); }
-      50% { opacity: 1; transform: scale(1.2); }
+    @keyframes moveStar {
+      0% { transform: translateX(0); opacity: 0.8; }
+      100% { transform: translateX(-100vw); opacity: 0.4; }
     }
     
     .cloud {
@@ -174,29 +174,31 @@
       border-radius: 50px;
       opacity: 0.85;
       filter: blur(1px);
+      animation: moveCloud 80s linear infinite;
     }
     
     @keyframes moveCloud {
-      from { transform: translateX(100vw); }
-      to { transform: translateX(-100%); }
+      0% { transform: translateX(100vw); }
+      100% { transform: translateX(-100%); }
     }
     
     .bird {
       position: absolute;
       width: 24px;
       height: 12px;
-      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 12"><path d="M2 6 L12 2 L22 6 L12 10 Z" fill="black"/></svg>') no-repeat;
+      background: url('image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 12"><path d="M2 6 L12 2 L22 6 L12 10 Z" fill="black"/></svg>') no-repeat;
       background-size: contain;
-      animation: flyBird linear infinite;
+      animation: flyBird 25s linear infinite;
     }
     
     @keyframes flyBird {
-      to { transform: translate(100vw, -50px) rotate(360deg); }
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(100vw, -50px) rotate(360deg); }
     }
   </style>
 </head>
 <body class="dark">
-  <button class="theme-toggle" id="themeToggle">☀️</button>
+  <button class="theme-toggle" id="themeToggle">🌙</button>
 
   <div class="container">
     <div class="form-card">
@@ -237,21 +239,19 @@
       
       // Create new elements based on theme
       if (isDark) {
-        createNatureElements();
-      } else {
         createStars();
+      } else {
+        createNatureElements();
       }
     });
 
     // Handle form submission
     form.addEventListener('submit', (e) => {
       e.preventDefault();
-      // In a real app, you'd validate and submit to server
-      // For demo, just redirect
       window.location.href = 'profile.html';
     });
 
-    // Generate stars for dark mode
+    // Generate stars for dark mode (now moving)
     function createStars() {
       const starCount = 120;
       for (let i = 0; i < starCount; i++) {
@@ -263,13 +263,9 @@
         star.style.left = Math.random() * 100 + 'vw';
         
         // Random size
-        const size = Math.random() * 3 + 1;
+        const size = Math.random() * 2 + 0.5;
         star.style.width = size + 'px';
         star.style.height = size + 'px';
-        
-        // Random animation
-        star.style.animationDuration = Math.random() * 5 + 2 + 's';
-        star.style.animationDelay = Math.random() * 5 + 's';
         
         document.body.appendChild(star);
       }
@@ -289,10 +285,6 @@
         cloud.style.width = (Math.random() * 150 + 80) + 'px';
         cloud.style.height = (Math.random() * 50 + 30) + 'px';
         
-        // Random animation
-        const duration = Math.random() * 60 + 40;
-        cloud.style.animation = `moveCloud ${duration}s linear infinite`;
-        
         document.body.appendChild(cloud);
       }
 
@@ -305,11 +297,6 @@
         // Random positions
         bird.style.top = (Math.random() * 30 + 15) + '%';
         bird.style.left = (Math.random() * 100) + 'vw';
-        
-        // Random animation
-        const duration = Math.random() * 20 + 15;
-        const delay = Math.random() * 10;
-        bird.style.animation = `flyBird ${duration}s ${delay}s linear`;
         
         document.body.appendChild(bird);
       }
